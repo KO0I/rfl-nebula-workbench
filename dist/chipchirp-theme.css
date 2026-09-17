@@ -1,0 +1,91 @@
+/* Shared visual language with Chipchirp and Planetary Climate Workbench.
+   Only the interface is themed; generated nebula colors remain independent. */
+@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url('./fonts/inter-400.woff') format('woff')}
+@font-face{font-family:Inter;font-style:normal;font-weight:500;font-display:swap;src:url('./fonts/inter-500.woff') format('woff')}
+@font-face{font-family:Inter;font-style:normal;font-weight:700;font-display:swap;src:url('./fonts/inter-700.woff') format('woff')}
+@font-face{font-family:Inter;font-style:normal;font-weight:900;font-display:swap;src:url('./fonts/inter-900.woff') format('woff')}
+
+:root{
+ --bg:#0f0e15;
+ --panel:#09080f;
+ --line:#302835;
+ --muted:#aaaaaa;
+ --text:#eeeeee;
+ --accent:#a67ca8;
+ --control:#1b101e;
+ --control-border:#796580;
+ --hover:#2c1c32;
+ --selected:#32203b;
+ --soft:#ccc7d0;
+ --violet:#a860ff;
+ --focus:#c69aff;
+ --shadow:0 5px 10px rgba(0,0,0,.5);
+ font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",sans-serif;
+}
+body{font-family:inherit;font-size:1rem;line-height:1.7;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+body>header{padding:28px 32px;background:var(--panel);flex-wrap:wrap}
+.brand{gap:16px;min-width:0}
+.brand-icon{display:block;width:48px;height:48px;flex:none;object-fit:contain;image-rendering:pixelated}
+h1,h2{font-weight:900;letter-spacing:-.04em;line-height:1.4;color:var(--text)}
+h1{font-size:28px;text-transform:uppercase;line-height:1.2}
+h1 span{display:inline;font:inherit;letter-spacing:inherit;color:inherit;margin-left:.25em}
+h2{font-size:20px}
+.viewer-head h2{font-size:28px;font-weight:900;letter-spacing:-.04em}
+.eyebrow{font-weight:700;letter-spacing:.075em;line-height:1.5}
+label{color:var(--soft);font-weight:500;line-height:1.5}
+a{color:var(--text);text-decoration:underline;text-decoration-color:var(--control-border);text-underline-offset:4px;transition:color .2s,text-decoration-color .2s}
+a:hover{color:var(--accent);text-decoration-color:var(--accent)}
+button,select,input[type=number]{border-radius:8px;line-height:1.4;border-color:var(--control-border);background:var(--control)}
+button{font-weight:700;transition:background-color .2s,color .2s,border-color .2s}
+button:hover:enabled{background:var(--hover);border-color:var(--accent)}
+button:active:enabled{border-color:var(--violet)}
+button:disabled{cursor:default}
+button.primary{background:var(--control);border-color:var(--accent);color:var(--text)}
+button.primary:hover:enabled{background:var(--violet);border-color:var(--violet);color:var(--panel)}
+.section-head button{padding:8px;color:var(--muted)}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible,.viewport:focus-visible{outline:2px solid var(--focus);outline-offset:3px}
+input[type=range],.check input{accent-color:var(--violet)}
+::selection{background:var(--violet);color:var(--panel)}
+nav{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;padding-bottom:8px;border-bottom:0}
+nav button{min-width:0;padding:11px 5px;border:1px solid transparent;border-radius:8px;background:none;text-transform:uppercase;font-weight:700}
+nav button[aria-selected=true]{background:var(--control);color:var(--text);border:1px solid var(--accent);box-shadow:inset 0 -2px var(--violet)}
+nav button:hover:enabled{background:var(--hover);color:var(--text)}
+.view-tabs{border-color:var(--line);border-radius:10px;background:var(--panel);gap:3px}
+.view-tabs button{border:1px solid transparent;border-radius:8px}
+.view-tabs button[aria-pressed=true]{background:var(--control);color:var(--text);border-color:var(--accent);box-shadow:inset 0 -2px var(--violet)}
+.viewport{background:var(--panel);border-color:var(--line);border-radius:16px;box-shadow:var(--shadow)}
+.viewport.checker{background:repeating-conic-gradient(#302835 0% 25%,#1b101e 0% 50%) 0 / 20px 20px}
+.loading{color:var(--soft);background:#09080fe6;border-radius:8px}
+.viewer-foot span:last-child{color:var(--muted)}
+.nova-strip{background:var(--control);border-color:var(--accent);border-radius:8px}
+.nova-strip>span:first-child{color:var(--text);font-weight:700}
+.nova-strip>span:nth-child(2){color:var(--soft)}
+#star-summary{color:var(--soft);font-weight:700}
+.rfl-export{padding:20px;background:var(--panel);border-color:var(--line);border-radius:16px;box-shadow:var(--shadow)}
+.rfl-export h2{font-size:20px}
+.rfl-export .pair{margin-bottom:16px;flex-wrap:wrap}
+.rfl-export .pair>*{flex:1 1 180px}
+.rfl-export .pair label{margin-bottom:0}
+details{font-size:1rem}
+details p{color:var(--soft)}
+summary{color:var(--text);font-size:14px;font-weight:700}
+summary:hover{color:var(--accent)}
+input[type=color]::-webkit-color-swatch{border-color:var(--control-border);border-radius:4px}
+input[type=color]::-moz-color-swatch{border:1px solid var(--control-border);border-radius:4px}
+@media(max-width:980px){
+ h1{font-size:25px}
+}
+@media(min-width:601px) and (max-width:800px){
+ main{grid-template-columns:290px minmax(0,1fr)}
+}
+@media(max-width:680px){
+ body>header{padding:22px 20px;gap:16px}
+ h1{font-size:24px}
+ h1 span{display:block;margin:2px 0 0}
+ .viewer-head h2{font-size:24px}
+}
+@media(max-width:600px){
+ header a{font-size:14px}
+ .rfl-export{padding:16px}
+}
+@media(prefers-reduced-motion:reduce){button,a{transition:none}}
