@@ -59,6 +59,10 @@ function params() {
  p[11] = +$('tile').checked; p[14] = +$('dither').checked;
  return p;
 }
+
+
+// Real-nebula preset catalog.
+Object.assign(presets,{orion:{palette:1,scale:5,warp:1.8,threshold:.28,mask:0,mix:.62,stretch:1.05,exposure:1.2,opacity:.84},carina:{palette:2,scale:6,warp:2.4,threshold:.31,mask:1,mix:.48,stretch:1.35,exposure:1.28,opacity:.9},helix:{palette:3,scale:7,warp:1.4,threshold:.34,mask:2,mix:.72,stretch:1.18,exposure:1.16,opacity:.82},crab:{palette:0,scale:9,warp:2.8,threshold:.39,mask:3,mix:.58,stretch:1.55,exposure:1.34,opacity:.9}}); const nebulaLabels={veil:'Violet veil',pillars:'Amber pillars',lagoon:'Blue lagoon',rift:'Dark rift',orion:'Orion Nebula (M42)',carina:'Carina Nebula (NGC 3372)',helix:'Helix Nebula (NGC 7293)',crab:'Crab Nebula (M1)',nova:'Nova'}; $('preset').innerHTML=Object.entries(nebulaLabels).map(([v,l])=>`<option value="${v}">${l}</option>`).join('');
 function spaceParams() { return starSpecs.map(([id]) => novaMode&&id==='cavity-radius'?.12:Number($(id).value)); }
 function updateOutputs() {
  for (const [id] of [...specs,...starSpecs]) $(id+'-val').textContent = id==='jet-fraction' ? `${Math.round($(id).value*100)}%` : $(id).value;
