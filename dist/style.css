@@ -6,3 +6,14 @@ nav{gap:18px}.motion-bar{display:flex;align-items:center;gap:14px;flex-wrap:wrap
 .rfl-export { margin-top:1.5rem; padding:1rem; border:1px solid #35344f; border-radius:.7rem }
 .rfl-export h2 { margin:0 0 .5rem; font-size:1rem }
 .rfl-export .pair { align-items:end; gap:1rem }
+
+#reflection-swatches{display:flex;gap:5px;margin:8px 0 16px}#reflection-swatches input{min-width:0;width:100%;height:34px;padding:2px;cursor:pointer}
+
+#comet-controls { border:1px solid #466371; border-radius:8px; padding:12px; margin:12px 0; background:rgba(33,78,88,.12); }
+#comet-controls h2 { margin:0 0 10px; }
+#comet-flip { width:100%; margin:4px 0; }
+#comet-compass { position:absolute; bottom:10px; left:10px; z-index:3; padding:4px 8px; background:rgba(4,10,18,.76); border-radius:6px; pointer-events:none; font-size:11px; color:#cedee9; }
+#comet-compass svg { width:110px; height:64px; display:block; margin:auto; }
+#comet-compass[hidden], #comet-controls[hidden] { display:none; }
+
+.galaxy-cluster-marker{position:absolute;z-index:2;transform:translate(-50%,-50%);width:28px;height:28px;min-height:0;padding:0;border:1px solid #e9c7a4;border-radius:50%;background:transparent;box-shadow:0 0 0 2px #05060b90;color:#ffe2c1;touch-action:manipulation}.galaxy-cluster-marker:hover{background:#ffe2c122;border-color:#fff}.galaxy-cluster-marker span{position:absolute;left:32px;top:0;white-space:nowrap;background:#0d0e15dd;padding:4px 6px;border-radius:3px;font-size:12px;pointer-events:none}.galaxy-cluster-marker.label-left span{left:auto;right:32px}#galaxy-location-note{margin:0 0 14px;color:#d9c3ac}

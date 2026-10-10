@@ -1,6 +1,7 @@
 #include "rfl_nebula_export.h"
 #include "volume.h"
 #include "nova.h"
+#include "reference_nebula.h"
 
 #define HEADER 160u
 #define MAX_BYTES (20u*1024u*1024u)
@@ -22,6 +23,8 @@ uint8_t *nebula_export_rfl(unsigned seed,int side) {
  const char magic[8]={'R','F','L','N','E','B','1',0};
  int nova=nebula_space_get(NOVA_MODE)>.5f,frames=nova?16:8,levels=0;
  unsigned at=HEADER,stride=0;
+ int compact=nebula_space_get(COMPACT_MODE)>.5f;
+ float extent=nebula_space_extent();
  output_size=0;
  if(side!=16&&side!=32&&side!=64)return 0;
  for(int n=side;n>=8;n/=2){stride+=(unsigned)n*n*n*4;levels++;}
@@ -33,7 +36,7 @@ uint8_t *nebula_export_rfl(unsigned seed,int side) {
  for(int i=0;i<8;i++)output[i]=(uint8_t)magic[i];
  u32(8,HEADER);u32(12,1);u32(16,(unsigned)side);u32(20,(unsigned)levels);
  u32(24,(unsigned)frames);u32(28,stars);u32(32,nova?3:1);u32(36,seed);
- f32(40,nova?30:12);f32(44,1.25f);f32(48,nebula_get(OPACITY)*2.7f);
+ f32(40,nova?30:12);f32(44,extent);f32(48,nebula_get(OPACITY)*2.7f*(nebula_space_get(COMET_MODE)>.5f?16:nebula_space_get(COMPACT_MODE)>4.5f?4:compact?24:nebula_reference_active()?2:1));
  f32(52,nebula_space_get(STAR_GLOW));f32(56,nebula_space_get(JET_LENGTH));
  f32(60,4);u32(64,size);f32(72,nova?22:0);
  /* Store the complete recipe for future rebakes in a separate .json export;
@@ -42,7 +45,7 @@ uint8_t *nebula_export_rfl(unsigned seed,int side) {
  for(unsigned i=0;name[i]&&i<63;i++)output[96+i]=(uint8_t)name[i];
  const float *records=nebula_space_stars();
  for(unsigned s=0;s<stars;s++) {
-  for(int j=0;j<11;j++)f32(at+(unsigned)j*4,records[s*11+j]);
+  for(int j=0;j<11;j++)f32(at+(unsigned)j*4,(compact&&nebula_space_get(COMPACT_MODE)==1&&j>=7&&j<=9)?0:records[s*11+j]);
   u32(at+44,s<jets?1:0);at+=48;
  }
  for(int f=0;f<frames;f++){f32(at,nova?nova_times[f]:(float)f*1.5f);at+=4;}
@@ -51,7 +54,7 @@ uint8_t *nebula_export_rfl(unsigned seed,int side) {
   unsigned prev=at;
   for(int z=0;z<side;z++)for(int y=0;y<side;y++)for(int x=0;x<side;x++) {
    float c[4];
-   nebula_space_cell(((x+.5f)/side-.5f)*2.5f,((y+.5f)/side-.5f)*2.5f,((z+.5f)/side-.5f)*2.5f,c);
+   nebula_space_cell(((x+.5f)/side-.5f)*2*extent,((y+.5f)/side-.5f)*2*extent,((z+.5f)/side-.5f)*2*extent,c);
    for(int j=0;j<3;j++)output[at++]=byte(c[j]*(255.0f/4));
    output[at++]=byte(c[3]*255);
   }

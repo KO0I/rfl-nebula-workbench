@@ -33,6 +33,9 @@ for(const t of [0,6,8,14,22,50]) {
  assert.equal(e.nebula_space_sample(clearing*.6,0,0),0,'Gas must be cleared inside the growing cavity');
 }
 assert(e.nebula_nova_value(14,2)>e.nebula_nova_value(8,2),'Shell radius must expand');
+assert(e.nebula_nova_value(50,2)>e.nebula_nova_value(22,2),'Shell keeps expanding after clearing reaches maximum');
+assert(e.nebula_nova_value(66,2)>e.nebula_nova_value(50,2));
+assert.equal(e.nebula_nova_value(66,2),e.nebula_nova_value(100,2));
 const expanding=render(14);assert(gasSum()>0,'The ejecta must become visible');
 const remnant=render(22);assert(remnant[center+2]>remnant[center],'Remnant must be blue-white');
 assert.equal(e.nebula_space_jet_count(),e.nebula_nova_jet_seed(42871));

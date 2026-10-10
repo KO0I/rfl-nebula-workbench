@@ -27,6 +27,7 @@ function outerLight(frame){
  }
  return sum;
 }
+e.nebula_space_set(4,.3); // Keep the cone inside the central aperture while testing glare fade.
 e.nebula_set(13,0); // Isolate the source from view-dependent gas extinction.
 build(1);
 assert.equal(e.nebula_nova_jet_seed(seed),1,'Fixture must produce a Nova jet');

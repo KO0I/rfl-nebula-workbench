@@ -2,7 +2,7 @@
 static uint8_t pixels[NEBULA_MAX*NEBULA_MAX*4], density[NEBULA_MAX*NEBULA_MAX];
 static float field[NEBULA_MAX*NEBULA_MAX];
 static float p[PARAM_COUNT]={5,5,.52f,2,1.2f,1,.35f,0,.32f,.55f,1,0,1.15f,.9f,1};
-static uint8_t palette[6][3]={{9,9,27},{34,26,68},{82,46,121},{145,74,169},{225,136,208},{248,220,244}};
+static uint8_t palette[12][3]={{9,9,27},{34,26,68},{82,46,121},{145,74,169},{225,136,208},{248,220,244},{2,8,30},{5,22,75},{12,48,140},{25,82,220},{45,115,255},{85,150,255}};
 static int w=256,h=256;
 static float clamp(float x,float a,float b) { return x<a?a:x>b?b:x; }
 static float absf(float x) { return x<0?-x:x; }
@@ -16,7 +16,7 @@ void nebula_set(int i,float v) {
  static const float hi[PARAM_COUNT]={14,8,.85f,3,3,1,1,3,.8f,1,2.5f,1,2.5f,1,1};
  if(i>=0&&i<PARAM_COUNT)p[i]=clamp(v,lo[i],hi[i]);
 }
-void nebula_palette(int i,int r,int g,int b) { if(i>=0&&i<6) {palette[i][0]=(uint8_t)clamp(r,0,255);palette[i][1]=(uint8_t)clamp(g,0,255);palette[i][2]=(uint8_t)clamp(b,0,255);} }
+void nebula_palette(int i,int r,int g,int b) { if(i>=0&&i<12) {palette[i][0]=(uint8_t)clamp(r,0,255);palette[i][1]=(uint8_t)clamp(g,0,255);palette[i][2]=(uint8_t)clamp(b,0,255);} }
 static float fbm(float x,float y,unsigned s,float scale) {return nebula_fbm(x,y,s,scale,(int)p[OCTAVES],p[PERSISTENCE],p[LACUNARITY]);}
 void nebula_generate(int width,int height,unsigned seed) {
  w=(int)clamp(width,1,NEBULA_MAX);h=(int)clamp(height,1,NEBULA_MAX);

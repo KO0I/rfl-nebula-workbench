@@ -1,0 +1,56 @@
+import fs from 'node:fs';
+import vm from 'node:vm';
+import assert from 'node:assert/strict';
+vm.runInThisContext(fs.readFileSync('dist/galaxy.js','utf8'));
+const m={seed:42871,width:256,height:256,time:0,yaw:.25,pitch:.85,zoom:1.15,cloudRotation:1,params:[5,5,.52,2,1.2,1,.35,2,.38,.55,1,0,1.2,.85,1],space:[18,.23,.28,1,1,1],side:32,name:'Barred spiral galaxy'};
+const t=performance.now(),a=NebulaGalaxy.render(m);console.log('First render ms',performance.now()-t);
+assert.equal(a.stars,6320);assert.equal(a.jets,11);
+assert.deepEqual(a.rgba,NebulaGalaxy.render(m).rgba);
+assert.notDeepEqual(a.rgba,NebulaGalaxy.render({...m,pitch:0}).rgba);
+assert.notDeepEqual(a.rgba,NebulaGalaxy.render({...m,time:20}).rgba);
+assert.notDeepEqual(a.rgba,NebulaGalaxy.render({...m,seed:55}).rgba);
+NebulaGalaxy.prepare(m.seed);
+for(const s of NebulaGalaxy.getStars())assert(s.color[0]>=s.color[1]&&s.color[1]>=s.color[2]||s.color[0]<=s.color[1]&&s.color[1]<=s.color[2],'No green/purple point sources');
+const records=NebulaGalaxy.getStars(),disk=records.filter(s=>!s.cluster&&!s.lmc),cluster=records.filter(s=>s.cluster);
+assert.equal(cluster.length,900);
+assert(disk.filter(s=>Math.hypot(s.x,s.z)<.25).length>disk.length*.45,'Dense central stellar population');
+const center=cluster.reduce((v,s)=>v.map((n,j)=>n+[s.x,s.y,s.z][j]/cluster.length),[0,0,0]);
+assert(Math.abs(Math.hypot(center[0]-8.2*3261.56/(50000/1.2),center[1],center[2])*50000/1.2-5.24*3261.56)<30,'Cluster distance uses shared Galactic frame');
+assert(cluster.every(s=>Math.hypot(s.x-center[0],s.y-center[1],s.z-center[2])<.0056),'Cluster retains physical size');
+const close=NebulaGalaxy.render({...m,galaxyFocus:true,zoom:256});assert.notDeepEqual(close.rgba,a.rgba);
+assert.equal(close.clusterProjection.x,m.width/2);assert.equal(close.clusterProjection.y,m.height/2);assert.equal(close.clusterProjection.focused,true);
+assert(a.clusterProjection.x>0&&a.clusterProjection.x<m.width&&a.clusterProjection.y>0&&a.clusterProjection.y<m.height,'Locator sits inside the default galaxy view');
+fs.writeFileSync('/tmp/galaxy-cluster.rgba',close.rgba);
+assert(close.density.every(v=>v===0),'Cluster close-up excludes projected galaxy gas');
+const starsOnly={...m,params:m.params.map((v,i)=>i===13?0:v)};
+const compactView=NebulaGalaxy.render({...starsOnly,galaxyFocus:true,zoom:24}),detailView=NebulaGalaxy.render({...starsOnly,galaxyFocus:true,zoom:256});
+const litPixels=image=>image.rgba.filter((v,i)=>i%4===3&&v>30).length;
+assert(litPixels(detailView)>litPixels(compactView)*2,'Closer inspection resolves more of the cluster');
+const cell=new Float32Array(4);NebulaGalaxy.sample(.18,0,0,cell);const bar=cell[3];NebulaGalaxy.sample(0,0,.18,cell);assert(bar>cell[3]*1.5,'Central bar elongated along x');
+NebulaGalaxy.sample(.5,0,.5,cell);const mid=cell[3];NebulaGalaxy.sample(.5,.25,.5,cell);assert(mid>cell[3]*10,'Dust lies in a 3D disk');
+const bytes=NebulaGalaxy.bake(m),dv=new DataView(bytes.buffer);assert.equal(dv.getUint32(28,true),6320);assert.equal(dv.getUint32(64,true),bytes.length);assert.equal(dv.getUint32(24,true),1);
+let hash=2166136261;for(let i=0;i<bytes.length;i++)hash=Math.imul(hash^(i>=68&&i<72?0:bytes[i]),16777619)>>>0;assert.equal(hash,dv.getUint32(68,true));
+fs.writeFileSync('/tmp/galaxy-face.rgba',a.rgba);fs.writeFileSync('/tmp/galaxy-edge.rgba',NebulaGalaxy.render({...m,pitch:.08}).rgba);
+console.log('Galaxy passed: deterministic stars, main-sequence palette, seed variation, depth, bar, rotation and RFL checksum.');
+
+const pos=NebulaGalaxy.getPositions(),q=pos.lmc,sun=pos.sun;
+const dx=sun.x-q.x,dy=q.y,dz=q.z,d=Math.hypot(dx,dy,dz);
+assert(Math.abs(d*pos.lyPerUnit/3261.56-49.59)<1e-8);
+assert(Math.abs((Math.atan2(dz,dx)*180/Math.PI+360)%360-280.4652)<1e-8);
+assert(Math.abs(Math.asin(dy/d)*180/Math.PI+32.8884)<1e-8);
+assert.equal(NebulaGalaxy.getStars().filter(s=>s.lmc).length,220);
+const milkyWay=records.filter(s=>!s.cluster&&!s.lmc),glares=milkyWay.filter(s=>s.glareAxis);
+assert.equal(glares.length,11);assert(glares.every(s=>s.glareAxis.length===3),'Only Milky Way stars receive deterministic glare axes');
+assert(NebulaGalaxy.getStars().every(s=>Math.max(Math.abs(s.x),Math.abs(s.y),Math.abs(s.z))<dv.getFloat32(44,true)),'Export contains every companion');
+NebulaGalaxy.sample(q.x,q.y,q.z,cell);assert(cell[3]>.1,'LMC contains gas');
+const lmc=NebulaGalaxy.render({...m,galaxyFocus:'lmc',zoom:4});assert(lmc.density.some(v=>v>20),'LMC close-up renders gas');
+const overview=NebulaGalaxy.render({...m,galaxyFocus:'system',zoom:.4});assert.notDeepEqual(overview.rgba,a.rgba);
+console.log('LMC passed: coordinate bearings, physical distance, gas, camera modes and export bounds.');
+
+// Unwind the spiral and measure angular modes independently in stars and gas.
+const armMode=(samples,k)=>Math.hypot(samples.reduce((v,s)=>v+s.w*Math.cos(k*s.a),0),samples.reduce((v,s)=>v+s.w*Math.sin(k*s.a),0))/samples.reduce((v,s)=>v+s.w,0);
+const angularStars=disk.filter(s=>Math.hypot(s.x,s.z)>.35).map(s=>({a:Math.atan2(s.z,s.x)-4.35*Math.log(1+Math.hypot(s.x,s.z)/.18),w:1}));
+assert(armMode(angularStars,3)>armMode(angularStars,2)*3,'Stars form three arms, not two');
+const angularGas=[];for(const r of [.5,.7,.9])for(let i=0;i<180;i++){const a=i*Math.PI/90;NebulaGalaxy.sample(r*Math.cos(a),0,r*Math.sin(a),cell);angularGas.push({a:a-4.35*Math.log(1+r/.18),w:cell[3]});}
+assert(armMode(angularGas,3)>armMode(angularGas,2)*2,'Gas follows the same three-arm structure');
+console.log('Three-arm stellar and volumetric distributions passed.');
